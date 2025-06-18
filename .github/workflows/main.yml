@@ -34,6 +34,7 @@ jobs:
           tags: |
             lytortech/zovoa:latest
             lytortech/zovoa:${{ env.GIT_SHA }}
+
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -41,6 +42,9 @@ jobs:
           username: ${{ secrets.EC2_SSH_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-              cd /home/ubuntu/
-              docker compose pull zovoa
-              docker compose up -d zovoa
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            cd /home/ubuntu/
+
+            docker compose pull zovoa
+            docker compose up -d zovoa
