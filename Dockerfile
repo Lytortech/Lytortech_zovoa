@@ -27,8 +27,21 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy built files from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy custom nginx config if needed (optional)
-# COPY nginx.conf /etc/nginx/nginx.conf
+# Overwrite default server block with SPA-friendly rewrite rule
+RUN echo 'server {\n\
+    listen 80;\n\
+    server_name localhost;\n\
+    root /usr/share/nginx/html;\n\
+\n\
+    location / {\n\
+        try_files $uri $uri/ /index.html;\n\
+    }\n\
+\n\
+    error_page 500 502 503 504 /50x.html;\n\
+    location = /50x.html {\n\
+        root /usr/share/nginx/html;\n\
+    }\n\
+}' > /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
